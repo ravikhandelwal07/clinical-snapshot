@@ -1,0 +1,534 @@
+/*
+ * Plain CSS, no framework. Two reasons: one fewer build step for whoever runs
+ * this, and the visual hierarchy is the deliverable here -- it deserves to be
+ * readable in one file.
+ *
+ * Colour is used for one thing only: severity. Red means "risk or retracted",
+ * amber means "qualified / uncertain", grey means "not current". Nothing is
+ * coloured decoratively, so a clinician can trust that a coloured thing matters.
+ */
+
+:root {
+  --ink: #16202a;
+  --ink-soft: #55636f;
+  --ink-faint: #7d8894;
+  --line: #dfe4e9;
+  --surface: #ffffff;
+  --canvas: #f4f6f8;
+
+  --danger: #b3261e;
+  --danger-bg: #fdecea;
+  --danger-line: #f0b4ae;
+  --caution: #8a5300;
+  --caution-bg: #fff5e0;
+  --caution-line: #ecd08a;
+  --positive: #1c6b45;
+  --positive-bg: #e7f4ec;
+  --info: #1c4f8a;
+  --info-bg: #e8f0fa;
+
+  --brand: #7ab648;
+  --radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+.code {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.82em;
+}
+
+/* ----------------------------------------------------------------- topbar */
+.topbar {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 20px;
+  background: #fff;
+  border-bottom: 3px solid var(--brand);
+}
+.topbar__brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.topbar__title {
+  color: var(--ink-soft);
+}
+.topbar__reload {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.topbar__reload:hover {
+  background: #f4f6f8;
+}
+.topbar__warning {
+  margin-left: auto;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.page {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 18px 20px 48px;
+}
+
+/* ----------------------------------------------------------------- banner */
+.banner {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.banner h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+}
+.banner__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 6px;
+  font-size: 15px;
+}
+.banner__facts > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.banner__note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--caution);
+  background: var(--caution-bg);
+  border-left: 3px solid var(--caution-line);
+  padding: 5px 9px;
+  border-radius: 0 3px 3px 0;
+}
+.banner__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 22px;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.banner__grid dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 2px;
+}
+.banner__grid dd {
+  margin: 0;
+  font-size: 14px;
+}
+.banner__alt {
+  font-size: 12.5px;
+  color: var(--caution);
+}
+.banner__source {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* ------------------------------------------------------------------ alerts */
+.alert {
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid;
+}
+.alert--warn {
+  background: var(--caution-bg);
+  border-color: var(--caution-line);
+  color: #4a3200;
+}
+.alert--danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-line);
+  color: #5c1410;
+}
+.alert__title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.alert p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* -------------------------------------------------------------------- grid */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.grid__column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+@media (max-width: 1020px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------------------------------------- cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card--danger {
+  border-color: var(--danger-line);
+  box-shadow: inset 4px 0 0 var(--danger);
+}
+.card__header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px 14px 9px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfd;
+}
+.card__header h2 {
+  margin: 0;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.card--danger .card__header h2 {
+  color: var(--danger);
+}
+.card__count {
+  margin-left: auto;
+}
+.card__subtitle {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfd;
+}
+.card__body {
+  padding: 4px 14px 12px;
+}
+
+.subhead {
+  margin: 14px 0 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 3px;
+}
+
+/* -------------------------------------------------------------------- rows */
+.row {
+  padding: 10px 0;
+  border-bottom: 1px solid #eef1f3;
+}
+.row:last-child {
+  border-bottom: none;
+}
+.row--muted {
+  opacity: 0.68;
+}
+.row--alert {
+  background: #fffafa;
+  margin: 0 -14px;
+  padding: 10px 14px;
+}
+.row__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+}
+.row__title {
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+}
+.row__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  margin-left: auto;
+}
+.row__meta {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.value {
+  font-weight: 700;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.components {
+  margin: 5px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------------ tokens */
+.badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  vertical-align: baseline;
+}
+.badge--neutral {
+  background: #eef1f4;
+  color: var(--ink-soft);
+  border-color: #dde3e8;
+}
+.badge--positive {
+  background: var(--positive-bg);
+  color: var(--positive);
+  border-color: #bfdfcc;
+}
+.badge--caution {
+  background: var(--caution-bg);
+  color: var(--caution);
+  border-color: var(--caution-line);
+}
+.badge--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger-line);
+}
+.badge--info {
+  background: var(--info-bg);
+  color: var(--info);
+  border-color: #c3d6ee;
+}
+
+.concept--unresolved {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--caution-bg);
+  border-bottom: 1px dashed var(--caution);
+  padding: 0 2px;
+}
+.code {
+  color: var(--ink-faint);
+}
+.date {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.muted {
+  color: var(--ink-faint);
+}
+
+.notes {
+  margin: 6px 0 0;
+  padding: 0 0 0 14px;
+  list-style: none;
+  font-size: 12.5px;
+  color: var(--caution);
+}
+.notes li {
+  position: relative;
+  padding-left: 2px;
+  margin-bottom: 2px;
+}
+.notes li::before {
+  content: '△';
+  position: absolute;
+  left: -13px;
+  font-size: 10px;
+}
+
+.provenance {
+  margin-top: 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  color: #a2abb4;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.empty {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: var(--caution-bg);
+  border: 1px dashed var(--caution-line);
+  border-radius: 4px;
+  font-size: 13px;
+  color: #4a3200;
+}
+.assert-none {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: var(--positive-bg);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--positive);
+}
+.coverage {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.coverage--warn {
+  color: var(--caution);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------- audit */
+.audit {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.collapsible {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.collapsible--danger {
+  border-color: var(--danger-line);
+}
+.collapsible > summary {
+  cursor: pointer;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.collapsible > summary:hover {
+  background: #fbfcfd;
+}
+.collapsible__body {
+  padding: 4px 14px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 12.5px;
+}
+.table th,
+.table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.table thead th {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  background: #fbfcfd;
+}
+.tr--flag {
+  background: var(--danger-bg);
+}
+
+.matchgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 8px 0;
+}
+.matchgrid h4,
+.issuegroup h4 {
+  margin: 0 0 4px;
+  font-size: 11px
+;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+.matchgrid ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.issuegroup {
+  margin-top: 12px;
+}
+.issues {
+  margin: 0;
+  padding-left: 16px;
+}
+.issues li {
+  margin-bottom: 7px;
+}
+.issues__action {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.footer {
+  margin-top: 22px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+@media print {
+  .topbar__warning,
+  .collapsible > summary:hover {
+    background: none;
+  }
+  .collapsible__body {
+    display: block !important;
+  }
+}

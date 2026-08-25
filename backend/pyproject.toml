@@ -1,0 +1,22 @@
+[project]
+name = "clinical-snapshot-api"
+version = "1.0.0"
+description = "Normalizes a messy FHIR R4 bundle into a safe-to-display clinical snapshot."
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "pydantic>=2.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "httpx>=0.28"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 92
+target-version = "py310"

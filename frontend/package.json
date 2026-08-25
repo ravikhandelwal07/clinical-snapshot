@@ -1,0 +1,25 @@
+{
+  "name": "clinical-snapshot-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "smoke": "vite build --ssr smoke/render.tsx --outDir smoke/dist --logLevel warn && node smoke/dist/render.js"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "typescript": "5.5.4",
+    "vite": "5.4.11"
+  }
+}
