@@ -33,7 +33,8 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 Verify: <http://127.0.0.1:8000/health> → `{"status":"ok", ..., "detail":"21 data-quality findings, 5 critical."}`
-Interactive API docs: <http://127.0.0.1:8000/docs>
+Interactive API docs (Swagger UI): <http://127.0.0.1:8000/docs> — see
+[Swagger / OpenAPI](#swagger--openapi) below.
 
 ### 2. Frontend
 
@@ -68,15 +69,55 @@ Regenerate the fixture with
 
 ### API
 
-| Endpoint | Purpose |
-| --- | --- |
-| `GET /api/patient-summary` | The whole snapshot. What the UI consumes. |
-| `GET /api/data-quality?severity=critical` | Just the issue ledger, filterable. |
-| `GET /api/withheld` | Just the records kept out of the clinical view. |
-| `GET /health` | Liveness + whether the bundle parsed. |
+| Endpoint | Tag | Purpose |
+| --- | --- | --- |
+| `GET /api/patient-summary` | `snapshot` | The whole snapshot. What the UI consumes. |
+| `GET /api/data-quality?severity=critical` | `snapshot` | Just the issue ledger, filterable. |
+| `GET /api/withheld` | `snapshot` | Just the records kept out of the clinical view. |
+| `GET /health` | `ops` | Liveness + whether the bundle parsed. |
 
-Add `?refresh=true` to re-read the bundle from disk. Point at a different bundle with
-the `FHIR_BUNDLE_PATH` environment variable.
+Every endpoint accepts `?refresh=true` to re-read the bundle from disk.
+`/api/data-quality` also accepts `?severity=` (`info` · `warning` · `critical`).
+Point at a different bundle with the `FHIR_BUNDLE_PATH` environment variable, and
+override the allowed CORS origins with `CORS_ORIGINS` (comma-separated).
+
+A failed bundle load returns **503**, not 500 — the service is healthy, its input is
+not, and the distinction matters to whatever is monitoring it. `/health` degrades
+rather than throwing, so it still answers while the bundle is broken.
+
+### Swagger / OpenAPI
+
+FastAPI generates the schema from the same Pydantic models the normalizer returns, so
+the documented contract is the real one — it cannot drift from the implementation.
+With the backend running:
+
+| URL | What it is |
+| --- | --- |
+| <http://127.0.0.1:8000/docs> | **Swagger UI** — interactive. Expand an endpoint, *Try it out*, *Execute*. |
+| <http://127.0.0.1:8000/redoc> | **ReDoc** — the same spec, rendered for reading rather than poking. |
+| <http://127.0.0.1:8000/openapi.json> | The raw **OpenAPI 3.1.0** document (34 generated schemas). |
+
+Swagger UI is the fastest way to exercise the API without the frontend running:
+
+```bash
+curl -s http://127.0.0.1:8000/api/patient-summary | head -40
+curl -s "http://127.0.0.1:8000/api/data-quality?severity=critical"
+curl -s http://127.0.0.1:8000/api/withheld
+curl -s http://127.0.0.1:8000/openapi.json > openapi.json   # export for client generation
+```
+
+It is also the quickest way to read the safety vocabulary without opening the source.
+The **Schemas** section at the bottom of `/docs` lists the enums the whole design turns
+on — `LabelSource` (`source` / `local_table` / `code_only` / `absent`), `Confidence`,
+`IssueSeverity`, `DatePrecision` — each with its permitted values. If you only look at
+one thing in Swagger, expand `ClinicalSnapshot`: it is the entire response contract,
+including which fields are nullable and therefore which uncertainties the UI is
+obliged to render.
+
+Note that `frontend/src/lib/types.ts` is a **hand-written mirror** of this schema, not
+generated from it. That is a deliberate time-cap tradeoff and a real risk — the two can
+drift silently. Generating the client types from `/openapi.json` in a build step is the
+correct fix and is listed under [What I would do next](#what-i-would-do-next).
 
 ---
 
@@ -304,9 +345,13 @@ severity — so a coloured element always signals that something matters.
 5. **Frontend tests** for each uncertainty state, plus an accessibility pass (the audit
    tables need proper caption/scope markup and the colour tokens need a contrast audit
    in high-contrast mode).
-6. **`Bundle.total` mismatch handling.** Currently reported as a warning; a paged
+6. **Generate the frontend types from `/openapi.json`** as a build step, replacing the
+   hand-written mirror in `src/lib/types.ts`. Today a backend field rename type-checks
+   cleanly on both sides and fails only at runtime, which for a contract that carries
+   safety flags is the wrong place to find out.
+7. **`Bundle.total` mismatch handling.** Currently reported as a warning; a paged
    bundle should be followed via `Bundle.link.next` rather than silently truncated.
-7. **Provenance and `meta.security` support**, so restricted records can be withheld
+8. **Provenance and `meta.security` support**, so restricted records can be withheld
    for confidentiality reasons with the same visible-suppression mechanism.
 
 ---
