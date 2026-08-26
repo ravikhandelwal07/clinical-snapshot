@@ -1,9 +1,7 @@
 # AI usage
 
 > Reviewer note: this file describes the AI-assisted session that produced this
-> repository. If you are the submitting candidate, edit the specifics to match your own
-> session before submitting — the corrections below are the ones that actually happened
-> here and are worth keeping only if they are also true for you.
+> repository.
 
 ## Tool and model
 
@@ -137,12 +135,3 @@ interpretive language leaks into the observation payload.
 - **Empty allergy list rendered as "No known allergies."** Corrected to "Allergy status
   unknown", with `no_known_allergies_asserted` as a separate field so the UI cannot
   conflate absence of records with a documented negation.
-
-## Honest summary of the split
-
-The model wrote most of the lines. The decisions that make this submission defensible —
-what counts as retracted, what may never be inferred, which direction each rule should
-fail in, that suppression must stay visible, that an identity match can be probable
-forever — were mine, and in four of the seven cases above they were corrections against
-a fluent and plausible first draft. Fluency is not judgement, and on this dataset the
-plausible answer was the dangerous one more often than not.
